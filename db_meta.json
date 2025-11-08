@@ -1,0 +1,38 @@
+{
+  "people": [
+    [
+      "ID",
+      "int"
+    ],
+    [
+      "name",
+      "str"
+    ],
+    [
+      "sex",
+      "str"
+    ],
+    [
+      "ege",
+      "int"
+    ],
+    [
+      "prof",
+      "bool"
+    ]
+  ],
+  "group": [
+    [
+      "ID",
+      "int"
+    ],
+    [
+      "spec",
+      "str"
+    ],
+    [
+      "ear",
+      "int"
+    ]
+  ]
+}
