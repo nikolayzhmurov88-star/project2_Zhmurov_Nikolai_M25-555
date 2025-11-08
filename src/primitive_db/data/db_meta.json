@@ -20,19 +20,5 @@
       "prof",
       "bool"
     ]
-  ],
-  "group": [
-    [
-      "ID",
-      "int"
-    ],
-    [
-      "spec",
-      "str"
-    ],
-    [
-      "ear",
-      "int"
-    ]
   ]
 }
