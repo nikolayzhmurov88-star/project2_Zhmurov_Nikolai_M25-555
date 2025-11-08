@@ -46,3 +46,6 @@ exit - выход из программы
 
 help - справочная информация
 
+
+Демонстрация работы:
+https://asciinema.org/a/iltgghcuQxzB1RGBFA4wxFmv9
