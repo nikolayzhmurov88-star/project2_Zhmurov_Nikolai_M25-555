@@ -38,18 +38,18 @@ def load_table_data(table_name):
     '''
    
     try:
-        with open('src/primitive_db/data/' + table_name, 'r') as f:
+        with open(f'src/primitive_db/data/{table_name}.json', 'r') as f:
             return json.load(f)
 
 
     except FileNotFoundError:
         print("\nФайл не найден")
-        return {}
+        return []
 
 def save_table_data(table_name, data):
 
     '''
     Сохраняет переданные данные таблицы в JSON-файл.
     '''
-    with open('src/primitive_db/data/' + table_name, 'w') as f:
+    with open(f'src/primitive_db/data/{table_name}.json', 'w') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)

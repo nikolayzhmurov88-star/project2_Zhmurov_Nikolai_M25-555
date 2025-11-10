@@ -114,7 +114,86 @@ def run():
                             continue
                         print_help()
 
-                    # Неизвестная команда    
+                    # !!!!!!Добавление записи в таблицу!!!!!!!
+                    case 'insert':
+                        
+                        # Определяем имя таблицы в которую добавляем строки
+                        table_name = args[1]
+
+                        # Определяем значания, которые записываем в таблицу
+                        values = args[2:]
+
+                        # Вызываем функцию добавления записи
+                        core.insert(metadata, table_name, values)
+
+                    # !!!!Фильтрация таблицы!!!!!
+                    case 'select':
+                        # Определяем имя таблицы c которой будем работать
+                        table_name = args[1]
+
+                        # Загружаем данные таблицы
+                        table_data = utils.load_table_data(table_name)
+
+                        where_clause = args[2:]
+
+                        # Вызываем функцию фильтрации таблицы
+                        core.select(table_data, where_clause=None)
+                        
+
+
+                    # !!!Изменение таблицы
+                    case 'update':
+
+                        # Определяем имя таблицы c которой будем работать
+                        table_name = args[1]
+
+                        # Загружаем данные таблицы
+                        table_data = utils.load_table_data(table_name)
+
+
+                        # !!!Временно присваиваем  where_clause и set_clause постоянные значения!!!
+                        where_clause = {'ege':99}
+                        set_clause = {'name':'Sema'}
+                        
+                        # Вызываем функцию изменения таблицы
+                        core.update(table_data, set_clause, where_clause)
+
+
+                        # Записываем измененную таблицу в файл
+                        utils.save_table_data(table_name, table_data)
+
+                    # !!!Удаление записей из таблицы
+                    case 'delete':
+                        
+                        # Определяем имя таблицы c которой будем работать
+                        table_name = args[1]
+
+                        # Загружаем данные таблицы
+                        table_data = utils.load_table_data(table_name)
+
+
+                        # !!!Временно присваиваем  where_clause и set_clause постоянные значения!!!
+                        where_clause = {'ege':37}
+                        
+                        # Вызываем функцию изменения таблицы
+                        core.delete(table_data, where_clause)
+
+                        # Записываем измененную таблицу в файл
+                        utils.save_table_data(table_name, table_data)
+
+                    case 'info':
+
+                        # Определяем имя таблицы c которой будем работать
+                        table_name = args[1]
+
+                        # Загружаем файл с таблицей
+                        table_data = utils.load_table_data(table_name)
+
+                        # Вызываем функцию вывода информации о таблице
+                        core.info(table_data, metadata, table_name)
+
+                    # Неизвестная команда 
+
                     case _:
                         print(f"\nФункции {command} нет. Попробуйте снова. ")
             else:
@@ -134,6 +213,12 @@ def print_help():
    
     print("\n***Процесс работы с таблицей***")
     print("Функции:")
+    print("<command> insert into <имя_таблицы> values (<значение1>, <значение2>, ...) - создать запись.")
+    print("<command> select from <имя_таблицы> where <столбец> = <значение> - прочитать записи по условию.")
+    print("<command> select from <имя_таблицы> - прочитать все записи.")
+    print("<command> update <имя_таблицы> set <столбец1> = <новое_значение1> where <столбец_условия> = <значение_условия> - обновить запись.")
+    print("<command> delete from <имя_таблицы> where <столбец> = <значение> - удалить запись.")
+    print("<command> info <имя_таблицы> - вывести информацию о таблице.")
     print("<command> create_table <имя_таблицы> <столбец1:тип> .. - создать таблицу")
     print("<command> list_tables - показать список всех таблиц")
     print("<command> drop_table <имя_таблицы> - удалить таблицу")
