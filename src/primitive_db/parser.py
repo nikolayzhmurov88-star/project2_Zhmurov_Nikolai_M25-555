@@ -17,6 +17,7 @@ def parse_insert_values(values_str):
         # Для двойных ковычек
         elif value.startswith("'") and value.endswith("'"):
             
+
         # Убираем ковычки (первый и последний элемент) 
             value = value[1:-1]
             value_pars.append(value)
@@ -36,6 +37,7 @@ def parse_insert_values(values_str):
             else:
                 # Если не число и не boolean - ОШИБКА (строка без кавычек)
                 print(f'\nСтроковое значение должно быть в кавычках: {value}')
+                return[]
 
     return(value_pars)
         
@@ -67,7 +69,7 @@ def parse_where_set_clause(where_clause):
     elif value_str.startswith("'") and value_str.endswith("'"):
 
         # Убираем ковычки (первый и последний элемент) 
-        value = value_str
+        value = value_str[1:-1]
 
     else:
         value = value_str
@@ -84,7 +86,7 @@ def parse_where_set_clause(where_clause):
         else:
             # Если не число и не boolean - ОШИБКА (строка без кавычек)
             print(f'\nСтроковое значение должно быть в кавычках: {value}')
-
+            return{}
 
     return {column: value}
     

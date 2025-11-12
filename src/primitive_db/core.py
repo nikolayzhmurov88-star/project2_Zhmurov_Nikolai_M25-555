@@ -225,7 +225,7 @@ def update(table_data, set_clause, where_clause):
 
     if changed_id:
         # Выводим сообщение об успешном изменении таблицы       
-        print(f"\nЗапись(си) с ID = {(', ').join(map(str,changed_id))} в успешно обновлена(ы)")
+        print(f"\nЗапись с ID = {(', ').join(map(str,changed_id))} в успешно обновлена")
     else:
         print(f"\nЗапись(си) с условием {str(where_clause)[1:-1]} не найдена в данной таблице")
 

@@ -190,7 +190,7 @@ def run():
                     case 'update':
                         # Делаем первичную проверку команды по количеству элементов списка
                         if len(args) == 10 and args[2] == 'set' and args[6] == 'where':
-                            print(len(args))
+                           
                             # Определяем имя таблицы c которой будем работать
                             table_name = args[1]
 
@@ -208,10 +208,12 @@ def run():
                             set_clause = parser.parse_where_set_clause(set_clause)
                             
                             # Вызываем функцию изменения таблицы
-                            core.update(table_data, set_clause, where_clause)
+                            if where_clause and set_clause:
+                                core.update(table_data, set_clause, where_clause)
 
-                            # Записываем измененную таблицу в файл
-                            utils.save_table_data(table_name, table_data)
+                                # Записываем измененную таблицу в файл
+                                utils.save_table_data(table_name, table_data)
+                            
                         else:
                             print('Неверный ввод команды, правильно: update <имя_таблицы> set <столбец1> = <новое_значение1> where <столбец_условия> = <значение_условия>')
                             return
