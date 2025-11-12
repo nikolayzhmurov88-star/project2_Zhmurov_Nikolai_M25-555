@@ -6,6 +6,10 @@ from src.primitive_db import utils
 # Имопртируем PrettyTable
 from prettytable import PrettyTable
 
+# Импортируем декораторы
+from src.primitive_db import decorators
+
+
 def create_table(metadata, table_name, columns):
     
     '''
@@ -75,7 +79,7 @@ def list_tables(metadata):
     print(f'\n Cписок таблиц: {list_table_str}')
 
 
-
+@decorators.log_time
 def insert(metadata, table_name, values):
 
     '''
@@ -134,7 +138,7 @@ def insert(metadata, table_name, values):
     utils.save_table_data(table_name, data)
 
 
-
+@decorators.log_time
 def select(table_data, where_clause=None):
 
     '''
