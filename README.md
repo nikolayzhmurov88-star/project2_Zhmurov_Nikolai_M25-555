@@ -31,7 +31,7 @@ make build
 make package-install
 
 # Теперь можно запускать из любого места
-poetry database
+database
 
 # Основные команды
 Работа с таблицами:
@@ -64,7 +64,9 @@ help - справочная информация
 Демонстрация работы:
 https://asciinema.org/a/iltgghcuQxzB1RGBFA4wxFmv9
 
-Демонстрация работы CRUD команды:
+Демонстрация работы CRUD команд:
+https://asciinema.org/a/TdA7EMSGPLx8wOBbEipVfY1DD
+
 
 
 
