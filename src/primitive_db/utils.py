@@ -13,14 +13,10 @@ def load_metadata(filepath):
         with open('src/primitive_db/data/' + filepath, 'r') as f:
             return json.load(f)
 
-
     except FileNotFoundError:
         print("\nФайл не найден")
         return {}
     
-    # except json.JSONDecodeError:
-        # Обработка ошибки неправильного формата файла
-        # return {}
 
 def save_metadata(filepath, data):
     '''
@@ -34,7 +30,7 @@ def load_table_data(table_name):
 
     '''
     Загружает данные таблицы из JSON-файла.
-    Если файл не найден, возвращает пустой словарь {}.
+    Если файл не найден, возвращает пустой список [].
     '''
    
     try:
@@ -43,7 +39,7 @@ def load_table_data(table_name):
 
 
     except FileNotFoundError:
-        print("\nФайл не найден")
+        print("\nСоздан новый файл")
         return []
 
 def save_table_data(table_name, data):

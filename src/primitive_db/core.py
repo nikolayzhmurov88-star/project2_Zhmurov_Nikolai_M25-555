@@ -2,6 +2,7 @@
 
 # Импортируем utils для вызова функций загрузки и сохранения таблиц
 from src.primitive_db import utils
+
 # Имопртируем PrettyTable
 from prettytable import PrettyTable
 
@@ -25,6 +26,7 @@ def create_table(metadata, table_name, columns):
     # Добавляем ID первым столцом в таблицу если этого не сделал пользователь
     if columns[0] == ('ID', 'int'):
         columns_with_id = columns
+    
     else:
         columns_with_id = [('ID', 'int')] + columns
     
@@ -43,6 +45,7 @@ def create_table(metadata, table_name, columns):
     # Выдаем сообщение, что таблица успешно создана
     print(f"\nТаблица '{table_name}' успешно создана со столбцами {columns_str}")
     return metadata
+
 
 def drop_table(metadata, table_name):
     
@@ -64,7 +67,9 @@ def drop_table(metadata, table_name):
 
 
 def list_tables(metadata):
+
     '''Выводит список таблиц в базе данных'''
+
     list_table_str = ', '.join(metadata.keys())
     # Выводим список таблиц
     print(f'\n Cписок таблиц: {list_table_str}')
@@ -72,12 +77,14 @@ def list_tables(metadata):
 
 
 def insert(metadata, table_name, values):
+
     '''
     Вставляет новую запись в таблицу.
     '''
+
     # Проверяем существование таблицы
     if table_name not in metadata:
-        print(f"Ошибка: Таблица '{table_name}' не существует")
+        print(f"\nОшибка: Таблица '{table_name}' не существует")
         return metadata
     
     # Получаем список столбцов и типов данных в таблице
@@ -90,7 +97,7 @@ def insert(metadata, table_name, values):
     
     # Проверяем количество значений
     if len(values) != len(table_data) - 1:
-        print(f"Ошибка: Ожидается {len(table_data) - 1} значений(я), получено {len(values)}")
+        print(f"\nОшибка: Ожидается {len(table_data) - 1} значений(я), получено {len(values)}")
         return metadata
     
     # Определяем список столбцов таблицы без первого (ID)
@@ -99,98 +106,80 @@ def insert(metadata, table_name, values):
     # Создаем список только с типами данных (списковое включение)
     types = [typ[1] for typ in table_data_ID]
 
-  
-    # Делаем проверку данных, при этом так как shlex возвращае строки, то делаем конвертацию данных при возможности
-    converted = []
-    conversion_errors = []
-    
+    # Делаем проверку данных, конвертацию не делаем, така как она сделана на этапе парсинга
     # Создаем цикл где попарно пребиараем пары значение - тип
     for value, col_type in zip(values, types):
-        # конвертируем данные в нужные типы
-        try:
-            if col_type == 'int':
-                converted.append(int(value))
-            elif col_type == 'float':
-                converted.append(float(value))
-            elif col_type == 'bool':
-                # Преобразуем строку в boolean исходя из допустимых значений строки
-                if value.lower() in ('true', '1', 'yes', 'y', 't'):
-                    converted.append(True)
-                elif value.lower() in ('false', '0', 'no', 'n', 'f'):
-                    converted.append(False)
-                else:
-                    conversion_errors.append(f"Недопустимое boolean значение: '{value}'")
-                    converted.append(value)  # оставляем исходное для ошибки валидации
-            else:  # str
-                converted.append(str(value))
+        if type(value).__name__  != col_type:
+            print(type(value).__name__ )
+            print(col_type)
+            print('\nОшибка: несоответсвие типов данных {value} не {col_type}')
+            return
+    
+    if data:
+        max_id = max(item["ID"] for item in data)
+        new_id = max_id + 1
 
-        # Перехватываем ошибки, возникающие при конвертации
-        except (ValueError, TypeError) as e:
-            conversion_errors.append(f"Не могу преобразовать '{value}' в {col_type}")
-            converted.append(value)  # оставляем исходное для ошибки валидации
-    
-        #Выводим ошибки конвертации
-        for errors in conversion_errors:   
-            print(f'\n{errors}')
-    
-    # Присваиваем номер id новой записи, если записи уже есть, прибавляем единицу к максимальному id
-    if not conversion_errors:
-        if data:
-            new_id = max(id['ID'] for id in data) + 1
-            
-        # Если записей нет, присваиваем номер 1
-        else:
-            new_id = 1
+    else:
+        new_id = 1
             
     # Создаем список столбцов таблицы без типов данных 
     names = [nam[0] for nam in table_data]
 
     # Создаем новую запись
-    new_record = dict(zip(names, [new_id] + converted))
+    new_record = dict(zip(names, [new_id] + values))
   
     # Добавляем запись в таблицу
     data.append(new_record)
-    print(f"Запись добавлена в таблицу '{table_name}' с ID {new_id}")
+    print(f"\nЗапись добавлена в таблицу '{table_name}' с ID {new_id}")
     utils.save_table_data(table_name, data)
 
 
 
 def select(table_data, where_clause=None):
+
     '''
     Если where_clause не задан, возвращает все данные.
     Если задан, фильтрует и возвращает только подходящие записи.
     '''
+
     # Создаём таблицу с заголовками из ключей первого словаря
     table = PrettyTable(field_names=list(table_data[0].keys()))
 
-    # !!! Временно присваиваем постоянное значение where_clause
-    where_clause = {}
-    
-  
-   
+      
     # Если where_clause передан фильтруем таблицу
     if where_clause:
+        
+        # Создаём таблицу с заголовками из ключей первого словаря
+        table = PrettyTable(field_names=list(table_data[0].keys()))
 
         # Делим словарь на ключ и значание
         key = list(where_clause.keys())[0]
         value = list(where_clause.values())[0]
         
-        # Перебираем словари каждой строки
-        for row in table_data:
-            i = 0
-            # Обращаемся в каждой строке к ключу и сравниваем значения
-            if row.get(key) == value:
-                i += 1
-                # Добавляем строки в объект PrettyTable
-                table.add_row(list(row.values()))
-                print(table)
-                print('\n Таблица отфильтрована')
 
-        if not i:
+        if key in table_data[0].keys():
+           
+            i = 0
+            # Перебираем словари каждой строки
             for row in table_data:
-                table.add_row(list(row.values()))
+            
+                # Обращаемся в каждой строке к ключу и сравниваем значения
+                if row.get(key) == value:
+                    # Добавляем строки в объект PrettyTable
+                    table.add_row(list(row.values()))
+                    i += 1
+            if i:
+                print('\nТаблица отфильтрована')
+                print(table)
+            
+            if not i:
+                for row in table_data:
+                    table.add_row(list(row.values()))
                 print(table)
                 print(f"\nВ этой таблице нет значений с {str(where_clause)[1:-1]} выведена вся таблица")
+        
+        else:
+            print(f'\nСтолбца {key} в таблице нет')
     
                    
     else:
@@ -200,7 +189,7 @@ def select(table_data, where_clause=None):
 
             # Добавляем все строки в объект PrettyTable
             table.add_row(list(row.values()))
-            print(table)
+        print(table)
         print('\nУсловие фильтрации не задано, выведена полная таблица')
 
         
@@ -284,7 +273,7 @@ def delete(table_data, where_clause):
 
 def info(table_data, metadata, table_name):
     if table_name not in metadata:
-        print(f"Ошибка: Таблица '{table_name}' не существует")
+        print(f"\nОшибка: Таблица '{table_name}' не существует")
         return metadata
     
     print(f'\nТаблица: {table_name}')

@@ -5,7 +5,8 @@ import prompt
 import shlex
 from src.primitive_db import utils
 from src.primitive_db import core
-
+from src.primitive_db import parser
+'''
 # Функция приветсвия
 def welcome():
     print("\nПервая попытка запустить проект!")
@@ -25,7 +26,7 @@ def welcome():
         except KeyboardInterrupt:
             print("\nВыход из программы.")
             break
-
+'''
 
 
 def run():
@@ -37,8 +38,11 @@ def run():
         try:
             user_input = input("\n>>>Введите команду: ")
             if user_input:
-                args = shlex.split(user_input)
+                
+                args = user_input.split()
                 command = args[0].lower()
+                
+                
                 match command:
                     case 'create_table':
                     
@@ -114,83 +118,147 @@ def run():
                             continue
                         print_help()
 
-                    # !!!!!!Добавление записи в таблицу!!!!!!!
+                    # Добавление записи в таблицу
                     case 'insert':
-                        
-                        # Определяем имя таблицы в которую добавляем строки
-                        table_name = args[1]
+                        if len(args) >= 5 and args[1] == 'into' and args[3] == 'values':
+                            
+                            # Определяем имя таблицы в которую добавляем строки
+                            table_name = args[2]
+    
+                            # Объединяем оставшуюся часть списка в строку
+                            values_str = ' '.join(args[4:])
 
-                        # Определяем значания, которые записываем в таблицу
-                        values = args[2:]
+                            # Вызываем функцию парсинга команд
+                            values_str = parser.parse_insert_values(values_str)
 
-                        # Вызываем функцию добавления записи
-                        core.insert(metadata, table_name, values)
+                            # Вызываем функцию добавления записи     
+                            core.insert(metadata, table_name, values_str)
 
-                    # !!!!Фильтрация таблицы!!!!!
+                        else:
+                            print('Неверная команда, правильно "insert into <Имя таблицы> values ...." ')
+    
+
+                    # Фильтрация таблицы
                     case 'select':
-                        # Определяем имя таблицы c которой будем работать
-                        table_name = args[1]
+                        if len(args) == 3 and args[1] == 'from':
+                            where_clause = None
+                            table_name = args[2]
+                            # Определяем имя таблицы c которой будем работать
 
-                        # Загружаем данные таблицы
-                        table_data = utils.load_table_data(table_name)
+                            if table_name in metadata:
 
-                        where_clause = args[2:]
+                                # Загружаем данные таблицы
+                                table_data = utils.load_table_data(table_name)
 
-                        # Вызываем функцию фильтрации таблицы
-                        core.select(table_data, where_clause=None)
+                                # Вызываем функцию фильтрации таблицы
+                                core.select(table_data, where_clause)
+                            
+                            else:
+                                print('\nТакой таблицы не существует')
+                            
+                        elif len(args) == 7 and args[1] == 'from' and args[3] == "where":
+                            
+                            table_name = args[2]
+                            # Определяем имя таблицы c которой будем работать
+                            if table_name in metadata:
+
+                                # Загружаем данные таблицы
+                                table_data = utils.load_table_data(table_name)
+
+                                # Объединяем оставшуюся часть списка в строку
+                                where_clause = ' '.join(args[4:])
+
+                                # Вызываем функцию парсинга команд
+                                where_clause = parser.parse_where_set_clause(where_clause)
+
+                                # Вызываем функцию фильтрации таблицы
+                                core.select(table_data, where_clause)
+                            
+                            else:
+                                print('\nТакой таблицы не существует')
+                                    
+                                
+                                # Вызываем функцию фильтрации таблицы
+                                
+                                core.select(table_data, where_clause)
+                        else:
+                            print('\nНеверная команда, правильно: select from <имя_таблицы> where <столбец> = <значение>')
+                    
                         
-
-
-                    # !!!Изменение таблицы
+                    
+                    # Изменение таблицы
                     case 'update':
+                        # Делаем первичную проверку команды по количеству элементов списка
+                        if len(args) == 10 and args[2] == 'set' and args[6] == 'where':
+                            print(len(args))
+                            # Определяем имя таблицы c которой будем работать
+                            table_name = args[1]
 
-                        # Определяем имя таблицы c которой будем работать
-                        table_name = args[1]
+                            # Загружаем данные таблицы
+                            table_data = utils.load_table_data(table_name)
 
-                        # Загружаем данные таблицы
-                        table_data = utils.load_table_data(table_name)
+                            # !!!Временно присваиваем  where_clause и set_clause постоянные значения!!!
+                            
+                            # Определяем элементы списка, отвечающие за условия и конвертируем в строки
+                            where_clause = ' '.join(args[7:10])
+                            set_clause = ' '.join(args[3:6])
+                            
+                            # Вызываем функцию для парсинга
+                            where_clause = parser.parse_where_set_clause(where_clause)
+                            set_clause = parser.parse_where_set_clause(set_clause)
+                            
+                            # Вызываем функцию изменения таблицы
+                            core.update(table_data, set_clause, where_clause)
 
+                            # Записываем измененную таблицу в файл
+                            utils.save_table_data(table_name, table_data)
+                        else:
+                            print('Неверный ввод команды, правильно: update <имя_таблицы> set <столбец1> = <новое_значение1> where <столбец_условия> = <значение_условия>')
+                            return
+                     
 
-                        # !!!Временно присваиваем  where_clause и set_clause постоянные значения!!!
-                        where_clause = {'ege':99}
-                        set_clause = {'name':'Sema'}
-                        
-                        # Вызываем функцию изменения таблицы
-                        core.update(table_data, set_clause, where_clause)
-
-
-                        # Записываем измененную таблицу в файл
-                        utils.save_table_data(table_name, table_data)
-
-                    # !!!Удаление записей из таблицы
+                    # Удаление записей из таблицы
                     case 'delete':
                         
-                        # Определяем имя таблицы c которой будем работать
-                        table_name = args[1]
+                        # Делаем первичную проверку команды по количеству элементов списка
+                        if len(args) == 7 and args[1] == 'from' and args[3] == 'where':
+                            
+                            # Определяем имя таблицы c которой будем работать
+                            table_name = args[2]
 
-                        # Загружаем данные таблицы
-                        table_data = utils.load_table_data(table_name)
+                            # Загружаем данные таблицы
+                            table_data = utils.load_table_data(table_name)
 
+                            # !!!Временно присваиваем  where_clause и set_clause постоянные значения!!!
+                            
+                            # Определяем элементы списка, отвечающие за условие и конвертируем в строку
+                            where_clause = ' '.join(args[4:7])
+                            
+                            # Вызываем функцию для парсинга
+                            where_clause = parser.parse_where_set_clause(where_clause)
+                            
+                            # Вызываем функцию изменения таблицы
+                            core.delete(table_data, where_clause)
 
-                        # !!!Временно присваиваем  where_clause и set_clause постоянные значения!!!
-                        where_clause = {'ege':37}
-                        
-                        # Вызываем функцию изменения таблицы
-                        core.delete(table_data, where_clause)
-
-                        # Записываем измененную таблицу в файл
-                        utils.save_table_data(table_name, table_data)
+                            # Записываем измененную таблицу в файл
+                            utils.save_table_data(table_name, table_data)
+                        else:
+                            print('Неверный ввод команды, правильно: delete from <имя_таблицы> where <столбец> = <значение>')
+                
 
                     case 'info':
+                        if len(args) == 2:
+                            # Определяем имя таблицы c которой будем работать
+                            table_name = args[1]
 
-                        # Определяем имя таблицы c которой будем работать
-                        table_name = args[1]
+                            # Загружаем файл с таблицей
+                            table_data = utils.load_table_data(table_name)
 
-                        # Загружаем файл с таблицей
-                        table_data = utils.load_table_data(table_name)
+                            # Вызываем функцию вывода информации о таблице
+                            core.info(table_data, metadata, table_name)
+                        else: 
+                            print('Неверно введена команда info, правильно: info <имя_таблицы>')
 
-                        # Вызываем функцию вывода информации о таблице
-                        core.info(table_data, metadata, table_name)
 
                     # Неизвестная команда 
 
