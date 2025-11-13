@@ -86,7 +86,7 @@ insert into cars values 'Toyota', 'corolla', 2021, false
 select from people
 select from cars
 
-select from people where sex = female
+select from people where sex = 'female'
 select from people where prof = true
 select from cars where year = 2007 
 select from cars where model = 'civic'

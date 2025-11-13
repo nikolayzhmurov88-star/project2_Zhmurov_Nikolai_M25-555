@@ -38,3 +38,37 @@ def confirm_action(action_description):
             return func(*args, **kwargs)
         return wrapper
     return decorator
+
+
+def create_cacher():
+
+    '''
+    Создает замыкание для кэширования результатов.
+    '''
+
+    # Кэш хранится в области видимости внешней функции
+   
+    cache = {}
+
+    def cache_result(key, value_func):
+
+        '''
+        Внутренняя функция, которая кэширует результаты вызовов.
+        '''
+
+        # Проверяем, есть ли значение в кэше
+        if key in cache:
+            print(cache[key])
+            return cache[key]
+        
+        # Если значения нет в кэше, вызываем функцию для получения данных
+        result = value_func()  # Вызываем функцию для получения данных
+        
+        # Сохраняем результат в кэш
+        cache[key] = result
+        print(f'\nСохраняем в кэш ключ: {key}')
+        
+        return result
+    
+    # Возвращаем внутреннюю функцию, которая запомнит переменную cache
+    return cache_result

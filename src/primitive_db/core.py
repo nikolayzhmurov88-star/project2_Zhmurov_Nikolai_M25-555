@@ -9,6 +9,8 @@ from prettytable import PrettyTable
 # Импортируем декораторы
 from src.primitive_db import decorators
 
+query_cacher = decorators.create_cacher()
+
 
 def create_table(metadata, table_name, columns):
     
@@ -140,65 +142,74 @@ def insert(metadata, table_name, values):
 
 @decorators.log_time
 def select(table_data, where_clause=None):
-
     '''
     Если where_clause не задан, возвращает все данные.
     Если задан, фильтрует и возвращает только подходящие записи.
+    С кэшированием результатов одинаковых запросов.
     '''
-
-    # Создаём таблицу с заголовками из ключей первого словаря
-    table = PrettyTable(field_names=list(table_data[0].keys()))
-
-      
-    # Если where_clause передан фильтруем таблицу
-    if where_clause:
-        
+    
+    def execute_query():
+        """Внутренняя функция, которая выполняет фактический запрос"""
         # Создаём таблицу с заголовками из ключей первого словаря
         table = PrettyTable(field_names=list(table_data[0].keys()))
 
-        # Делим словарь на ключ и значание
-        key = list(where_clause.keys())[0]
-        value = list(where_clause.values())[0]
-        
+        # Если where_clause передан фильтруем таблицу
+        if where_clause:
+            # Делим словарь на ключ и значение
+            key = list(where_clause.keys())[0]
+            value = list(where_clause.values())[0]
 
-        if key in table_data[0].keys():
-           
-            i = 0
-            # Перебираем словари каждой строки
-            for row in table_data:
-            
-                # Обращаемся в каждой строке к ключу и сравниваем значения
-                if row.get(key) == value:
-                    # Добавляем строки в объект PrettyTable
-                    table.add_row(list(row.values()))
-                    i += 1
-            if i:
-                print('\nТаблица отфильтрована')
-                print(table)
-            
-            if not i:
+            if key in table_data[0].keys():
+                i = 0
+                filtered_rows = []
+                
+                # Перебираем словари каждой строки
                 for row in table_data:
+                    # Обращаемся в каждой строке к ключу и сравниваем значения
+                    if row.get(key) == value:
+                        # Сохраняем отфильтрованные строки
+                        filtered_rows.append(row)
+                        i += 1
+                
+                # Добавляем строки в таблицу
+                for row in filtered_rows:
                     table.add_row(list(row.values()))
-                print(table)
-                print(f"\nВ этой таблице нет значений с {str(where_clause)[1:-1]} выведена вся таблица")
-        
-        else:
-            print(f'\nСтолбца {key} в таблице нет')
-    
-                   
-    else:
-
-        # Добавляем строки - значения из каждого словаря
-        for row in table_data:
-
-            # Добавляем все строки в объект PrettyTable
-            table.add_row(list(row.values()))
-        print(table)
-        print('\nУсловие фильтрации не задано, выведена полная таблица')
-
-        
+                    
+                if i:
+                    print('\nТаблица отфильтрована')
+                    print(table)
+                    return table
+                
+                if not i:
+                    for row in table_data:
+                        table.add_row(list(row.values()))
+                    print(table)
+                    print(f"\nВ этой таблице нет значений с {str(where_clause)[1:-1]} выведена вся таблица")
+                    return table
             
+            else:
+                print(f'\nСтолбца {key} в таблице нет')
+                return []
+                   
+        else:
+            # Добавляем строки - значения из каждого словаря
+            for row in table_data:
+                table.add_row(list(row.values()))
+            print(table)
+            print('\nУсловие фильтрации не задано, выведена полная таблица')
+            return table
+    
+    # Создаем уникальный ключ для кэша
+    if where_clause:
+        cache_key = f'select {table_data[0].keys()} where {where_clause}'
         
+    else:
+        cache_key = f'select {table_data[0].keys()}'
+        
+    
+    # Используем кэшер для выполнения запроса
+    return query_cacher(cache_key, execute_query)
+
 
 def update(table_data, set_clause, where_clause):
 
