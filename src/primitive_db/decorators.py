@@ -134,8 +134,8 @@ def handle_db_errors(func):
                 return None  # Для остальных операций
 
         # Для других возможных ошибок   
-        #except Exception as e:
-            #print(f"Неожиданная ошибка в {func.__name__}: {e}")
-            #return None
+        except Exception as e:
+            print(f"Неожиданная ошибка в {func.__name__}: {e}")
+            return None
     
     return wrapper

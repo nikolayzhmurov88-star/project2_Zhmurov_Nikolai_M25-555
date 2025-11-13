@@ -78,43 +78,61 @@ https://asciinema.org/a/iltgghcuQxzB1RGBFA4wxFmv9
 https://asciinema.org/a/TdA7EMSGPLx8wOBbEipVfY1DD
 
 Итоговая демонстрация программы:
+https://asciinema.org/a/1FdRNgBDCjrSuARDpGxUVnnC9
 
 
 
 # Команды для тестирования:
 
 create_table people name:str sex:str age:int prof:bool
+
 create_table cars brabd:str model:str year:int available:bool
 
 insert into people values 'Pavel', 'male', 34, true 
+
 insert into people values 'Lena', 'female', 22, true 
+
 insert into people values 'Alexander', 'male', 37, false 
+
 insert into people values 'Oksana', 'female', 65, true 
 
 insert into cars values 'Honda', 'civic', 2007, true 
+
 insert into cars values 'Toyota', 'corolla', 2021, false 
 
 select from people
+
 select from cars
 
 select from people where sex = 'female'
+
 select from people where prof = true
+
 select from cars where year = 2007 
+
 select from cars where model = 'civic'
+
 select from cars where model = civic
 
 update people set name = Sveta where age = 22
+
 update people set name = 'Sveta' where age = 22
+
 select from people
 
 update cars set model = 'Accord' where year = 2007
+
 select from car
+
 select from cars
 
 select from people
+
 delete from people where prof = false
+
 select from people
 
 info people
+
 info cars
 

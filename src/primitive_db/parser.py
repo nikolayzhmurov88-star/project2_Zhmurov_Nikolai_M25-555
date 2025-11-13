@@ -38,11 +38,11 @@ def parse_insert_values(values_str):
             elif value.lower() in ('false', 'no', 'n', 'f'):
                 value_pars.append(False)
             else:
-                # Если не число и не boolean - ОШИБКА (строка без кавычек)
+                # Если не число и не boolean 
                 raise ValueError(f'\nСтроковое значение должно быть в кавычках: {value}')
                 
     
-    print(value_pars)            
+              
     return(value_pars)
         
 
