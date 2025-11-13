@@ -15,6 +15,16 @@
 
 - Сохранять метаданные в JSON-формате
 
+- Сохранять данный таблицы в JSON-формате
+
+- Полная поддержка CRUD команд
+
+- Обработка ошибок
+
+- Подтверждение операции удаления
+
+- Кеширование запросов
+
 # Установка и сборка
 
 # Клонируйте репозиторий
@@ -67,10 +77,11 @@ https://asciinema.org/a/iltgghcuQxzB1RGBFA4wxFmv9
 Демонстрация работы CRUD команд:
 https://asciinema.org/a/TdA7EMSGPLx8wOBbEipVfY1DD
 
+Итоговая демонстрация программы:
 
 
 
-Команды для тестирования:
+# Команды для тестирования:
 
 create_table people name:str sex:str age:int prof:bool
 create_table cars brabd:str model:str year:int available:bool

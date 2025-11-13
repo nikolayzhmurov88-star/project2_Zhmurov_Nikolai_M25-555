@@ -25,7 +25,7 @@ build-backend = "poetry.core.masonry.api"
 database = "src.primitive_db.engine:run"
 
 [tool.ruff]
-line-length = 88
+line-length = 175
 target-version = "py311"
 exclude = ["venv", ".venv", "dist", "__pycache__"]
 

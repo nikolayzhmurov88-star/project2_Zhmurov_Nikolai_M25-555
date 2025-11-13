@@ -1,13 +1,12 @@
 # src/primitive_db/core.py
 
-# Импортируем utils для вызова функций загрузки и сохранения таблиц
-from src.primitive_db import utils
 
-# Имопртируем PrettyTable
-from prettytable import PrettyTable
+from prettytable import PrettyTable  # Имопртируем PrettyTable
 
-# Импортируем декораторы
-from src.primitive_db import decorators
+from src.primitive_db import (
+    decorators,  # Импортируем декораторы
+    utils,  # Импортируем utils для вызова функций загрузки и сохранения таблиц
+)
 
 query_cacher = decorators.create_cacher()
 
@@ -81,17 +80,13 @@ def list_tables(metadata):
     print(f'\n Cписок таблиц: {list_table_str}')
 
 
+@decorators.handle_db_errors
 @decorators.log_time
 def insert(metadata, table_name, values):
 
     '''
     Вставляет новую запись в таблицу.
     '''
-
-    # Проверяем существование таблицы
-    if table_name not in metadata:
-        print(f"\nОшибка: Таблица '{table_name}' не существует")
-        return metadata
     
     # Получаем список столбцов и типов данных в таблице
     table_data = metadata[table_name]
@@ -112,14 +107,12 @@ def insert(metadata, table_name, values):
     # Создаем список только с типами данных (списковое включение)
     types = [typ[1] for typ in table_data_ID]
 
-    # Делаем проверку данных, конвертацию не делаем, така как она сделана на этапе парсинга
     # Создаем цикл где попарно пребиараем пары значение - тип
     for value, col_type in zip(values, types):
         if type(value).__name__  != col_type:
-            print(type(value).__name__ )
-            print(col_type)
-            print('\nОшибка: несоответсвие типов данных {value} не {col_type}')
-            return
+
+            raise ValueError(f'Несоответсвие типов данных "{value}" не {col_type}')
+        
     
     if data:
         max_id = max(item["ID"] for item in data)
@@ -139,6 +132,9 @@ def insert(metadata, table_name, values):
     print(f"\nЗапись добавлена в таблицу '{table_name}' с ID {new_id}")
     utils.save_table_data(table_name, data)
 
+    # Создаем ключ аналогично select для поиска в кэше
+    table_pattern = f'select {data[0].keys()}'
+    query_cacher.invalidate(table_pattern)
 
 @decorators.log_time
 def select(table_data, where_clause=None):
@@ -206,7 +202,6 @@ def select(table_data, where_clause=None):
     else:
         cache_key = f'select {table_data[0].keys()}'
         
-    
     # Используем кэшер для выполнения запроса
     return query_cacher(cache_key, execute_query)
 
@@ -244,6 +239,10 @@ def update(table_data, set_clause, where_clause):
     else:
         print(f"\nЗапись(си) с условием {str(where_clause)[1:-1]} не найдена в данной таблице")
 
+    # Создаем ключ аналогично select для поиска в кэше
+    table_pattern = f'select {table_data[0].keys()}'
+    query_cacher.invalidate(table_pattern)
+ 
     return table_data
 
 
@@ -281,19 +280,22 @@ def delete(table_data, where_clause):
 
     else:
         print(f"\nЗапись(си) с условием {str(where_clause)[1:-1]} не найдена в данной таблице")
+
+    # Создаем ключ аналогично select для поиска в кэше
+    table_pattern = f'select {table_data[0].keys()}'
+    query_cacher.invalidate(table_pattern)
     
-
-
     return table_data
 
+@decorators.handle_db_errors
 def info(table_data, metadata, table_name):
-    if table_name not in metadata:
-        print(f"\nОшибка: Таблица '{table_name}' не существует")
-        return metadata
+    inf = metadata[table_name]
     
     print(f'\nТаблица: {table_name}')
 
     # Списковое включение
-    columns = ', '.join([f"{col}:{typ}" for col, typ in metadata[table_name]])
+    columns = ', '.join([f"{col}:{typ}" for col, typ in inf])
     print(f'\nСтолбцы: {columns}')
     print(f'\nКоличество записей: {len(table_data)}')
+
+

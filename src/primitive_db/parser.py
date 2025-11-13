@@ -1,6 +1,9 @@
 # src/primitive_db/parser.py
-import shlex
 
+from src.primitive_db import decorators  # Импортируем декораторы
+
+
+@decorators.handle_db_errors
 def parse_insert_values(values_str):
     # Убираем скобки по краям
     values_str = values_str.strip('()').replace(',', '')
@@ -36,14 +39,15 @@ def parse_insert_values(values_str):
                 value_pars.append(False)
             else:
                 # Если не число и не boolean - ОШИБКА (строка без кавычек)
-                print(f'\nСтроковое значение должно быть в кавычках: {value}')
-                return[]
-
+                raise ValueError(f'\nСтроковое значение должно быть в кавычках: {value}')
+                
+    
+    print(value_pars)            
     return(value_pars)
         
 
 
-
+@decorators.handle_db_errors
 def parse_where_set_clause(where_clause):
     
     '''
@@ -85,9 +89,8 @@ def parse_where_set_clause(where_clause):
             value = False
         else:
             # Если не число и не boolean - ОШИБКА (строка без кавычек)
-            print(f'\nСтроковое значение должно быть в кавычках: {value}')
-            return{}
-
+            raise ValueError(f'\nСтроковое значение должно быть в кавычках: {value}')
+            
     return {column: value}
     
  

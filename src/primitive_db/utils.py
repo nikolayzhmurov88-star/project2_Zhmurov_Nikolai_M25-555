@@ -3,6 +3,10 @@
 import json
 import os
 
+from src.primitive_db import decorators  # Импортируем декораторы
+
+
+@decorators.handle_db_errors
 def load_metadata(filepath):
     
     '''
@@ -12,20 +16,9 @@ def load_metadata(filepath):
     
     full_path = 'src/primitive_db/data/' + filepath
 
-    try:
-        with open(full_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+    with open(full_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-    except FileNotFoundError:
-        print(f"\nФайл {filepath} не найден, создан новый")
-        
-        os.makedirs(os.path.dirname(full_path), exist_ok=True)
-		
-        with open(full_path, 'w', encoding='utf-8') as f: 
-            json.dump({}, f, ensure_ascii=False, indent=2)
-
-    return {}
-    
 
 def save_metadata(filepath, data):
     '''
@@ -39,6 +32,7 @@ def save_metadata(filepath, data):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
+@decorators.handle_db_errors
 def load_table_data(table_name):
 
     '''
@@ -48,20 +42,11 @@ def load_table_data(table_name):
     
     full_path = f'src/primitive_db/data/{table_name}.json'
    
-    try:
-        with open(full_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+
+    with open(full_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
 
-    except FileNotFoundError:
-        print(f"\nФайл таблицы {table_name} не найден, создан новый")
-        
-        os.makedirs(os.path.dirname(full_path), exist_ok=True)
-        
-        with open(full_path, 'w', encoding='utf-8') as f:
-            json.dump([], f, ensure_ascii=False, indent=2)
-
-        return []
 
 def save_table_data(table_name, data):
 
