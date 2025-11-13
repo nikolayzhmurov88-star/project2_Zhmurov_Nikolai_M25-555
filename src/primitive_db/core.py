@@ -50,7 +50,7 @@ def create_table(metadata, table_name, columns):
     print(f"\nТаблица '{table_name}' успешно создана со столбцами {columns_str}")
     return metadata
 
-
+@decorators.confirm_action('удалить таблицу')
 def drop_table(metadata, table_name):
     
     '''
@@ -236,7 +236,7 @@ def update(table_data, set_clause, where_clause):
     return table_data
 
 
-
+@decorators.confirm_action('запись из таблицы')
 def delete(table_data, where_clause):
 
     '''
