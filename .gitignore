@@ -17,6 +17,9 @@ dist/
 .venv/
 venv/
 
+# Ruff cache
+.ruff_cache/
+
 # IDE
 .vscode/
 .idea/
